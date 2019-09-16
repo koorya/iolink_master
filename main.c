@@ -13,6 +13,10 @@ void TIM4_IRQHandler(void) {
 int main(void) {
 //	SetSysClockToHSE();
 
+   	RCC_HCLKConfig( RCC_SYSCLK_Div1);
+	RCC_PCLK2Config(RCC_HCLK_Div1);
+	RCC_PCLK1Config(RCC_HCLK_Div2);//таким образом частота на входе таймера удвоится
+
 	/* Initialize LED which connected to PC13 */
 	GPIO_InitTypeDef GPIO_InitStructure;
 	// Enable PORTC Clock
@@ -34,7 +38,7 @@ int main(void) {
 	TIM_TimeBaseStructInit(&TIMER_InitStructure);
 	TIMER_InitStructure.TIM_CounterMode = TIM_CounterMode_Up;
 	TIMER_InitStructure.TIM_Prescaler = 8000;
-	TIMER_InitStructure.TIM_Period = 500;
+	TIMER_InitStructure.TIM_Period = 1000;
 	TIM_TimeBaseInit(TIM4, &TIMER_InitStructure);
 	TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
 	TIM_Cmd(TIM4, ENABLE);
