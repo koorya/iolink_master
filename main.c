@@ -5,7 +5,8 @@ void TIM4_IRQHandler(void) {
 	if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET) {
 		// Обязательно сбрасываем флаг
 		TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
-		GPIOC->ODR ^= GPIO_Pin_13;
+		GPIOC->ODR &= ~GPIO_Pin_14;
+		TIM_Cmd(TIM4, DISABLE);
 	}
 }
 
@@ -22,12 +23,12 @@ int main(void) {
 	// Enable PORTC Clock
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
 	/* Configure the GPIO_LED pin */
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
 
-	GPIO_ResetBits(GPIOC, GPIO_Pin_13); // Set C13 to Low level ("0")
+	GPIO_ResetBits(GPIOC, GPIO_Pin_14); // Set C13 to Low level ("0")
 
 	// TIMER4
 	TIM_TimeBaseInitTypeDef TIMER_InitStructure;
@@ -37,11 +38,10 @@ int main(void) {
 
 	TIM_TimeBaseStructInit(&TIMER_InitStructure);
 	TIMER_InitStructure.TIM_CounterMode = TIM_CounterMode_Up;
-	TIMER_InitStructure.TIM_Prescaler = 8000;
-	TIMER_InitStructure.TIM_Period = 1000;
+	TIMER_InitStructure.TIM_Prescaler = 72;
+	TIMER_InitStructure.TIM_Period = 70;
 	TIM_TimeBaseInit(TIM4, &TIMER_InitStructure);
 	TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
-	TIM_Cmd(TIM4, ENABLE);
 
 	/* NVIC Configuration */
 	/* Enable the TIM4_IRQn Interrupt */
@@ -51,8 +51,11 @@ int main(void) {
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
+	TIM_Cmd(TIM4, ENABLE);
+	GPIOC->ODR |= GPIO_Pin_14;
+
 	while (1) {
-		// В главном цикле делаем что хотим.
+
 	}
 }
 
